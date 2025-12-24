@@ -40,7 +40,6 @@ data/
 *.xlsx
 *.jsonl
 *.txt
-*.html
 
 # 3. 忽略日志/缓存文件
 logs/

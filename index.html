@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2025年度工作总结</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- 登录页面 -->
+    <div id="loginPage" class="page active">
+        <div class="image-section">
+            <div class="dolphin-container">
+                <div class="dolphin login-dolphin">🐬</div>
+                <div class="bubbles">
+                    <div class="bubble"></div>
+                    <div class="bubble"></div>
+                    <div class="bubble"></div>
+                </div>
+            </div>
+        </div>
+        <div class="content-section">
+            <h1>2025年度工作回顾</h1>
+            <div class="login-form">
+                <input type="text" id="username" placeholder="用户名" />
+                <input type="password" id="password" placeholder="密码" />
+                <button id="loginBtn" onclick="login()">回顾</button>
+                <div id="errorMsg" class="error-msg"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 数据展示页面模板 -->
+    <div id="dataPages" class="page">
+        <!-- 动态生成的数据页面将插入这里 -->
+    </div>
+
+    <!-- 祝福页面 -->
+    <div id="blessPage" class="page">
+        <div class="image-section">
+            <div class="dolphin-container">
+                <div class="dolphin celebration-dolphin">🐬</div>
+                <div class="stars">
+                    <div class="star"></div>
+                    <div class="star"></div>
+                    <div class="star"></div>
+                    <div class="star"></div>
+                    <div class="star"></div>
+                </div>
+            </div>
+        </div>
+        <div class="content-section">
+            <h2 id="blessTitle">年度总结：</h2>
+            <p id="blessContent"></p>
+            <button onclick="restart()" class="restart-btn">重新开始</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
