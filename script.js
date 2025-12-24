@@ -3,6 +3,12 @@ let data = null;
 let currentUser = null;
 let currentPageIndex = 0;
 let dataPages = [];
+let totalPages = 0;
+
+// 触摸事件相关变量
+let startY = 0;
+let startTime = 0;
+let isScrolling = false;
 
 // 海豚姿势配置
 const dolphinPoses = {
@@ -68,6 +74,8 @@ function generateDataPages() {
         fieldsToShow = ['case', 'test', 'bugFound', 'release'];
     }
 
+    totalPages = fieldsToShow.length + 2; // 数据页面 + 登录页 + 祝福页
+
     fieldsToShow.forEach((field, index) => {
         const fieldConfig = fieldMap[field];
         const value = workData[field];
@@ -97,6 +105,7 @@ function generateDataPages() {
                             <button class="nav-btn" onclick="showNextPage()">${index === fieldsToShow.length - 1 ? '完成回顾' : '下一页'}</button>
                         </div>
                     </div>
+                    <div class="page-indicator">${index + 2}/${totalPages}</div>
                 </div>
             `;
             container.appendChild(pageDiv);
@@ -135,18 +144,41 @@ function showNextPage() {
     } else {
         // 从最后一个数据页到祝福页
         dataContainer.classList.remove('active');
-        dataPages[currentPageIndex].classList.remove('active');
+        if (dataPages.length > 0) {
+            dataPages[currentPageIndex].classList.remove('active');
+        }
         showBlessPage();
     }
+    updatePageIndicator();
 }
 
 // 显示上一页
 function showPrevPage() {
-    if (currentPageIndex > 0) {
+    const loginPage = document.getElementById('loginPage');
+    const dataContainer = document.getElementById('dataPages');
+    const blessPage = document.getElementById('blessPage');
+
+    if (blessPage.classList.contains('active')) {
+        // 从祝福页回到最后一个数据页
+        blessPage.classList.remove('active');
+        dataContainer.classList.add('active');
+        if (dataPages.length > 0) {
+            currentPageIndex = dataPages.length - 1;
+            dataPages[currentPageIndex].classList.add('active');
+        }
+    } else if (currentPageIndex > 0) {
+        // 数据页之间切换
         dataPages[currentPageIndex].classList.remove('active');
         currentPageIndex--;
         dataPages[currentPageIndex].classList.add('active');
+    } else if (dataContainer.classList.contains('active') && currentPageIndex === 0) {
+        // 从第一个数据页回到登录页
+        dataContainer.classList.remove('active');
+        dataPages[0].classList.remove('active');
+        loginPage.classList.add('active');
+        currentPageIndex = -1;
     }
+    updatePageIndicator();
 }
 
 // 显示祝福页面
@@ -158,6 +190,7 @@ function showBlessPage() {
     document.getElementById('blessContent').textContent = randomBless.content;
     
     blessPage.classList.add('active');
+    updatePageIndicator();
 }
 
 // 重新开始
@@ -166,10 +199,11 @@ function restart() {
     currentUser = null;
     currentPageIndex = 0;
     dataPages = [];
+    totalPages = 0;
     
-    // 清空输入框
-    document.getElementById('username').value = '';
-    document.getElementById('password').value = '';
+    // 清空输入框，但保留默认值
+    document.getElementById('username').value = 'leon';
+    document.getElementById('password').value = 'leon123';
     document.getElementById('errorMsg').textContent = '';
     
     // 隐藏所有页面，显示登录页
@@ -180,6 +214,80 @@ function restart() {
     
     // 清空数据页面容器
     document.getElementById('dataPages').innerHTML = '';
+    
+    // 更新页面指示器
+    updatePageIndicator();
+}
+
+// 更新页面指示器
+function updatePageIndicator() {
+    const loginPage = document.getElementById('loginPage');
+    const dataContainer = document.getElementById('dataPages');
+    const blessPage = document.getElementById('blessPage');
+    
+    let currentPage = 1;
+    let total = totalPages || 1;
+    
+    if (loginPage.classList.contains('active')) {
+        currentPage = 1;
+    } else if (dataContainer.classList.contains('active')) {
+        currentPage = currentPageIndex + 2;
+    } else if (blessPage.classList.contains('active')) {
+        currentPage = total;
+    }
+    
+    // 更新所有页面的指示器
+    const indicators = document.querySelectorAll('.page-indicator');
+    indicators.forEach(indicator => {
+        indicator.textContent = `${currentPage}/${total}`;
+    });
+}
+
+// 触摸事件处理
+function handleTouchStart(e) {
+    startY = e.touches[0].clientY;
+    startTime = Date.now();
+    isScrolling = false;
+}
+
+function handleTouchMove(e) {
+    if (!startY) return;
+    
+    const currentY = e.touches[0].clientY;
+    const diffY = startY - currentY;
+    
+    // 如果垂直滑动距离超过水平滑动距离，则认为是垂直滑动
+    if (Math.abs(diffY) > 10) {
+        isScrolling = true;
+        e.preventDefault(); // 阻止默认滚动行为
+    }
+}
+
+function handleTouchEnd(e) {
+    if (!startY || !isScrolling) return;
+    
+    const endY = e.changedTouches[0].clientY;
+    const diffY = startY - endY;
+    const diffTime = Date.now() - startTime;
+    
+    // 滑动距离和时间的阈值
+    const minSwipeDistance = 50;
+    const maxSwipeTime = 300;
+    
+    if (Math.abs(diffY) > minSwipeDistance && diffTime < maxSwipeTime) {
+        if (diffY > 0) {
+            // 向上滑动 - 下一页
+            showNextPage();
+        } else {
+            // 向下滑动 - 上一页
+            showPrevPage();
+        }
+    }
+    
+    // 重置
+    startY = 0;
+    startTime = 0;
+    isScrolling = false;
 }
 
 // 键盘事件监听
@@ -197,6 +305,11 @@ document.addEventListener('DOMContentLoaded', async function() {
     // 加载配置数据
     await loadConfig();
     
+    // 添加触摸事件监听
+    document.addEventListener('touchstart', handleTouchStart, { passive: false });
+    document.addEventListener('touchmove', handleTouchMove, { passive: false });
+    document.addEventListener('touchend', handleTouchEnd, { passive: false });
+    
     // 为输入框添加焦点效果
     const inputs = document.querySelectorAll('input');
     inputs.forEach(input => {
@@ -207,4 +320,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             this.style.transform = 'scale(1)';
         });
     });
+    
+    // 初始化页面指示器
+    updatePageIndicator();
 });

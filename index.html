@@ -22,11 +22,12 @@
         <div class="content-section">
             <h1>2025年度工作回顾</h1>
             <div class="login-form">
-                <input type="text" id="username" placeholder="用户名" />
-                <input type="password" id="password" placeholder="密码" />
+                <input type="text" id="username" placeholder="用户名" value="leon" />
+                <input type="password" id="password" placeholder="密码" value="leon123" />
                 <button id="loginBtn" onclick="login()">回顾</button>
                 <div id="errorMsg" class="error-msg"></div>
             </div>
+            <div class="page-indicator">1/1</div>
         </div>
     </div>
 
@@ -53,6 +54,7 @@
             <h2 id="blessTitle">年度总结：</h2>
             <p id="blessContent"></p>
             <button onclick="restart()" class="restart-btn">重新开始</button>
+            <div class="page-indicator">1/1</div>
         </div>
     </div>
 
