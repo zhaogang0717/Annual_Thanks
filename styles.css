@@ -1,0 +1,429 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+.page {
+    display: none;
+    min-height: 100vh;
+    flex-direction: column;
+}
+
+.page.active {
+    display: flex;
+}
+
+.image-section {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(45deg, #4facfe 0%, #00f2fe 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.content-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+}
+
+/* 海豚设计 - 使用Emoji */
+.dolphin-container {
+    position: relative;
+    width: 300px;
+    height: 300px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.dolphin {
+    font-size: 120px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.2));
+}
+
+/* 不同姿势的海豚动画 */
+.login-dolphin {
+    animation: float-gentle 3s ease-in-out infinite;
+}
+
+.celebration-dolphin {
+    animation: jump 2s ease-in-out infinite;
+}
+
+.working-dolphin {
+    animation: swim 3s ease-in-out infinite;
+}
+
+.thinking-dolphin {
+    animation: think 4s ease-in-out infinite;
+}
+
+.coding-dolphin {
+    animation: code 2.5s ease-in-out infinite;
+}
+
+.testing-dolphin {
+    animation: test 3s ease-in-out infinite;
+}
+
+/* 为不同状态添加额外的emoji装饰 */
+.dolphin::before {
+    content: '';
+    position: absolute;
+    font-size: 30px;
+    opacity: 0;
+    animation: decoration-fade 3s ease-in-out infinite;
+}
+
+.coding-dolphin::before {
+    content: '💻';
+    top: -40px;
+    left: -20px;
+}
+
+.testing-dolphin::before {
+    content: '🔍';
+    top: -40px;
+    right: -20px;
+}
+
+.thinking-dolphin::before {
+    content: '💭';
+    top: -50px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.celebration-dolphin::before {
+    content: '🎉';
+    top: -60px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.working-dolphin::before {
+    content: '⚡';
+    top: -40px;
+    right: -10px;
+}
+
+/* 气泡动画 */
+.bubbles {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.bubble {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    animation: float 4s infinite ease-in-out;
+}
+
+.bubble:nth-child(1) {
+    width: 20px;
+    height: 20px;
+    left: 20%;
+    animation-delay: 0s;
+}
+
+.bubble:nth-child(2) {
+    width: 15px;
+    height: 15px;
+    left: 70%;
+    animation-delay: 1s;
+}
+
+.bubble:nth-child(3) {
+    width: 25px;
+    height: 25px;
+    left: 50%;
+    animation-delay: 2s;
+}
+
+/* 星星动画 */
+.stars {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.star {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: #ffd700;
+    clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+    animation: twinkle 2s infinite;
+}
+
+.star:nth-child(1) { top: 20%; left: 20%; animation-delay: 0s; }
+.star:nth-child(2) { top: 30%; right: 20%; animation-delay: 0.5s; }
+.star:nth-child(3) { bottom: 30%; left: 30%; animation-delay: 1s; }
+.star:nth-child(4) { bottom: 20%; right: 30%; animation-delay: 1.5s; }
+.star:nth-child(5) { top: 50%; left: 50%; animation-delay: 2s; }
+
+/* 登录表单 */
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 300px;
+}
+
+.login-form input {
+    padding: 15px;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    font-size: 16px;
+    transition: border-color 0.3s;
+}
+
+.login-form input:focus {
+    outline: none;
+    border-color: #4facfe;
+}
+
+.login-form button {
+    padding: 15px;
+    background: linear-gradient(45deg, #4facfe, #00f2fe);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 18px;
+    cursor: pointer;
+    transition: transform 0.3s;
+}
+
+.login-form button:hover {
+    transform: translateY(-2px);
+}
+
+.error-msg {
+    color: #e74c3c;
+    text-align: center;
+    font-size: 14px;
+}
+
+/* 数据展示页面 */
+.data-page {
+    display: none;
+    min-height: 100vh;
+    flex-direction: column;
+}
+
+.data-page.active {
+    display: flex;
+}
+
+.data-content {
+    text-align: center;
+}
+
+.data-number {
+    font-size: 4em;
+    font-weight: bold;
+    color: #4facfe;
+    margin: 20px 0;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.data-label {
+    font-size: 1.5em;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.data-desc {
+    font-size: 1.2em;
+    color: #666;
+    line-height: 1.6;
+    max-width: 600px;
+}
+
+.nav-buttons {
+    margin-top: 30px;
+    display: flex;
+    gap: 20px;
+}
+
+.nav-btn {
+    padding: 12px 24px;
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: transform 0.3s;
+}
+
+.nav-btn:hover {
+    transform: translateY(-2px);
+}
+
+.nav-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.restart-btn {
+    padding: 15px 30px;
+    background: linear-gradient(45deg, #4facfe, #00f2fe);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    font-size: 18px;
+    cursor: pointer;
+    margin-top: 30px;
+    transition: transform 0.3s;
+}
+
+.restart-btn:hover {
+    transform: translateY(-2px);
+}
+
+h1, h2 {
+    color: #333;
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+h1 {
+    font-size: 2.5em;
+}
+
+h2 {
+    font-size: 2em;
+}
+
+/* 动画 */
+@keyframes blink {
+    0%, 90%, 100% { transform: scaleY(1); }
+    95% { transform: scaleY(0.1); }
+}
+
+@keyframes smile {
+    0%, 100% { transform: scaleX(1); }
+    50% { transform: scaleX(1.2); }
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0; }
+    50% { transform: translateY(-100px) rotate(180deg); opacity: 1; }
+}
+
+@keyframes twinkle {
+    0%, 100% { opacity: 0.3; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.2); }
+}
+
+/* 海豚emoji动画 */
+@keyframes float-gentle {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-15px) rotate(5deg); }
+}
+
+@keyframes jump {
+    0%, 100% { transform: translateY(0px) rotate(0deg) scale(1); }
+    25% { transform: translateY(-30px) rotate(-10deg) scale(1.1); }
+    50% { transform: translateY(-50px) rotate(0deg) scale(1.2); }
+    75% { transform: translateY(-30px) rotate(10deg) scale(1.1); }
+}
+
+@keyframes swim {
+    0%, 100% { transform: translateX(0px) translateY(0px) rotate(0deg); }
+    25% { transform: translateX(15px) translateY(-8px) rotate(10deg); }
+    50% { transform: translateX(0px) translateY(-15px) rotate(0deg); }
+    75% { transform: translateX(-15px) translateY(-8px) rotate(-10deg); }
+}
+
+@keyframes think {
+    0%, 100% { transform: rotate(0deg) translateY(0px) scale(1); }
+    25% { transform: rotate(-5deg) translateY(-10px) scale(1.05); }
+    50% { transform: rotate(0deg) translateY(-15px) scale(1.1); }
+    75% { transform: rotate(5deg) translateY(-10px) scale(1.05); }
+}
+
+@keyframes code {
+    0%, 100% { transform: translateY(0px) rotate(0deg) scale(1); }
+    20% { transform: translateY(-12px) rotate(3deg) scale(1.05); }
+    40% { transform: translateY(-8px) rotate(-3deg) scale(0.95); }
+    60% { transform: translateY(-15px) rotate(3deg) scale(1.1); }
+    80% { transform: translateY(-5px) rotate(-3deg) scale(1.02); }
+}
+
+@keyframes test {
+    0%, 100% { transform: translateY(0px) rotate(0deg) scale(1); }
+    33% { transform: translateY(-18px) rotate(-8deg) scale(1.08); }
+    66% { transform: translateY(-12px) rotate(8deg) scale(0.92); }
+}
+
+@keyframes decoration-fade {
+    0%, 100% { opacity: 0; transform: translateY(0px) scale(1); }
+    50% { opacity: 1; transform: translateY(-10px) scale(1.2); }
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .page {
+        flex-direction: column;
+    }
+    
+    .image-section, .content-section {
+        flex: none;
+        min-height: 50vh;
+    }
+    
+    .content-section {
+        padding: 20px;
+    }
+    
+    .dolphin-container {
+        width: 200px;
+        height: 200px;
+    }
+    
+    .dolphin {
+        width: 150px;
+        height: 90px;
+    }
+    
+    .dolphin-body {
+        width: 150px;
+        height: 60px;
+    }
+    
+    .data-number {
+        font-size: 3em;
+    }
+    
+    h1 {
+        font-size: 2em;
+    }
+    
+    h2 {
+        font-size: 1.5em;
+    }
+}

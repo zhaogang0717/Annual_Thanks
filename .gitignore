@@ -1,0 +1,72 @@
+# ==================== Python 核心忽略规则 ====================
+# 字节码文件（Python 编译后生成，运行时自动生成，无需上传）
+__pycache__/
+*.py[cod]
+*$py.class
+
+# 虚拟环境（本地开发依赖，每个人的环境可能不同，禁止上传）
+venv/
+env/
+ENV/
+.venv/
+*.env
+
+# 依赖包安装目录（pip install 安装的包，用 requirements.txt 记录依赖即可）
+site-packages/
+dist/
+build/
+*.egg-info/
+*.egg
+
+# 测试/缓存文件
+.pytest_cache/
+.coverage
+htmlcov/
+.nosetests.xml
+.tox/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# 忽略本地配置文件（如存储密钥、数据库密码的文件）
+config.py
+local_settings.py
+secret.json
+config.ini
+
+# 忽略数据文件（本地测试用的大文件、csv/excel 数据）
+data/
+*.csv
+*.xlsx
+*.jsonl
+*.txt
+*.html
+
+# 3. 忽略日志/缓存文件
+logs/
+*.log
+.cache/
+
+# 4. 忽略 IDE 配置文件（如 PyCharm、VS Code 的本地配置）
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# ==================== 操作系统相关忽略 ====================
+# Windows 系统文件
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# macOS 系统文件
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Icon?
+
+# Linux 临时文件
+*~
