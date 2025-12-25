@@ -1,63 +1,72 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2025年度工作总结</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>2025年度工作总结 | Dolphin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
-    <!-- 登录页面 -->
-    <div id="loginPage" class="page active">
-        <div class="image-section">
-            <div class="dolphin-container">
-                <div class="dolphin login-dolphin">🐬</div>
-                <div class="bubbles">
-                    <div class="bubble"></div>
-                    <div class="bubble"></div>
-                    <div class="bubble"></div>
+    <div class="ocean-bg">
+        <div class="wave wave-1"></div>
+        <div class="wave wave-2"></div>
+        <div id="bubblesContainer"></div>
+    </div>
+
+    <div id="mainContainer">
+        <!-- 登录页面 -->
+        <div id="loginPage" class="page active">
+            <div class="dolphin-wrapper dolphin-float">
+                <img src="idel.png" alt="Dolphin" class="dolphin-img">
+            </div>
+            <div class="content-card">
+                <h1>2025年度回顾</h1>
+                <p class="subtitle">与小海豚一起回顾成长的点滴</p>
+                <div class="login-form">
+                    <div class="input-group">
+                        <input type="text" id="username" placeholder="请输入姓名" value="leon" autocomplete="off">
+                    </div>
+                    <div class="input-group">
+                        <input type="password" id="password" placeholder="请输入密码" value="leon123" autocomplete="off">
+                    </div>
+                    <button id="loginBtn" class="primary-btn" onclick="login()">开启回顾</button>
+                    <div id="errorMsg" class="error-msg"></div>
                 </div>
             </div>
         </div>
-        <div class="content-section">
-            <h1>2025年度工作回顾</h1>
-            <div class="login-form">
-                <input type="text" id="username" placeholder="用户名" value="leon" />
-                <input type="password" id="password" placeholder="密码" value="leon123" />
-                <button id="loginBtn" onclick="login()">回顾</button>
-                <div id="errorMsg" class="error-msg"></div>
+
+        <!-- 动态数据页面容器 -->
+        <div id="dataPages"></div>
+
+        <!-- 祝福页面 -->
+        <div id="blessPage" class="page">
+            <div class="dolphin-wrapper dolphin-float">
+                <img src="happy.png" alt="Dolphin" class="dolphin-img">
+                <div class="sparkles" id="sparkles"></div>
             </div>
-            <div class="page-indicator">1/1</div>
+            <div class="content-card">
+                <h1 id="blessTitle">年度总结</h1>
+                <p id="blessContent" class="data-desc"></p>
+                <button onclick="restart()" class="primary-btn"
+                    style="margin-top: 30px; background: var(--color-accent); box-shadow: 0 4px 12px rgba(244, 114, 182, 0.3);">再看一遍</button>
+            </div>
         </div>
     </div>
 
-    <!-- 数据展示页面模板 -->
-    <div id="dataPages" class="page">
-        <!-- 动态生成的数据页面将插入这里 -->
-    </div>
 
-    <!-- 祝福页面 -->
-    <div id="blessPage" class="page">
-        <div class="image-section">
-            <div class="dolphin-container">
-                <div class="dolphin celebration-dolphin">🐬</div>
-                <div class="stars">
-                    <div class="star"></div>
-                    <div class="star"></div>
-                    <div class="star"></div>
-                    <div class="star"></div>
-                    <div class="star"></div>
-                </div>
-            </div>
-        </div>
-        <div class="content-section">
-            <h2 id="blessTitle">年度总结：</h2>
-            <p id="blessContent"></p>
-            <button onclick="restart()" class="restart-btn">重新开始</button>
-            <div class="page-indicator">1/1</div>
-        </div>
+    <!-- Hidden Assets -->
+    <div style="display: none;">
+        <!-- SVGs removed in favor of 3D images -->
     </div>
 
     <script src="script.js"></script>
 </body>
+
 </html>

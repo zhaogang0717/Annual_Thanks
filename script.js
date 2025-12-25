@@ -1,20 +1,13 @@
 // 全局变量
 let data = null;
 let currentUser = null;
-let currentPageIndex = 0;
-let dataPages = [];
+let currentPageIndex = -1; // -1 表示登录页
+let pages = []; // 存储所有页面 DOM
 let totalPages = 0;
 
-// 触摸事件相关变量
+// 触摸事件相关
 let startY = 0;
-let startTime = 0;
-let isScrolling = false;
-
-// 海豚姿势配置
-const dolphinPoses = {
-    'DEV': ['working-dolphin', 'coding-dolphin', 'thinking-dolphin', 'working-dolphin', 'coding-dolphin'],
-    'TESTER': ['testing-dolphin', 'working-dolphin', 'thinking-dolphin', 'testing-dolphin']
-};
+let isMoving = false;
 
 // 加载配置数据
 async function loadConfig() {
@@ -23,304 +16,307 @@ async function loadConfig() {
         data = await response.json();
     } catch (error) {
         console.error('加载配置文件失败:', error);
-        alert('配置文件加载失败，请检查 bill-config.json 文件是否存在');
     }
 }
 
 // 登录功能
 async function login() {
-    if (!data) {
-        alert('配置数据未加载，请刷新页面重试');
-        return;
-    }
+    if (!data) return;
 
     const username = document.getElementById('username').value.trim();
     const password = document.getElementById('password').value.trim();
     const errorMsg = document.getElementById('errorMsg');
 
-    if (!username || !password) {
-        errorMsg.textContent = '请输入用户名和密码';
-        return;
-    }
-
-    // 查找用户
     const user = data.users.find(u => u.name === username && u.password === password);
-    
+
     if (!user) {
-        errorMsg.textContent = '用户名或密码错误';
+        errorMsg.textContent = '用户名或密码错误哦~';
+        setTimeout(() => errorMsg.textContent = '', 2000);
         return;
     }
 
     currentUser = user;
-    generateDataPages();
-    showNextPage();
+    initPages();
+    showPage(0); // 显示第一个数据页
 }
 
-// 生成数据页面
-function generateDataPages() {
-    const container = document.getElementById('dataPages');
-    container.innerHTML = '';
-    dataPages = [];
+// 布局生成器集合
+const layoutGenerators = {
+    classic: (fieldConfig, displayValue, unit, index, total, poseImg) => `
+        <div class="dolphin-wrapper dolphin-float">
+            <img src="${poseImg}" class="dolphin-img" alt="Dolphin">
+        </div>
+        <div class="content-card">
+            <div class="data-label">${fieldConfig.label}</div>
+            <div class="data-number-container">
+                <span class="data-number" data-target="${displayValue}">${displayValue}</span>
+                <span class="data-unit">${unit}</span>
+            </div>
+            <div class="data-desc">${fieldConfig.desc.replace('{value}', displayValue + unit)}</div>
+        </div>
+    `,
+    hero: (fieldConfig, displayValue, unit, index, total, poseImg) => `
+        <div class="dolphin-wrapper dolphin-float">
+            <img src="${poseImg}" class="dolphin-img" alt="Dolphin">
+        </div>
+        <div class="layout-hero-content">
+            <div class="data-label">${fieldConfig.label}</div>
+            <div class="data-number-container">
+                <span class="data-number" data-target="${displayValue}">${displayValue}</span>
+                <span class="data-unit">${unit}</span>
+            </div>
+            <div class="data-desc">${fieldConfig.desc.replace('{value}', displayValue + unit)}</div>
+        </div>
+    `,
+    split: (fieldConfig, displayValue, unit, index, total, poseImg) => `
+        <div class="layout-split-part layout-split-top">
+            <div class="dolphin-wrapper dolphin-float">
+               <img src="${poseImg}" class="dolphin-img" alt="Dolphin">
+            </div>
+        </div>
+        <div class="layout-split-part layout-split-bottom">
+            <div class="content-card">
+                <div class="data-label">${fieldConfig.label}</div>
+                <div class="data-number-container">
+                    <span class="data-number" data-target="${displayValue}">${displayValue}</span>
+                    <span class="data-unit">${unit}</span>
+                </div>
+                <div class="data-desc">${fieldConfig.desc.replace('{value}', displayValue + unit)}</div>
+            </div>
+        </div>
+    `,
+    bento: (fieldConfig, displayValue, unit, index, total, poseImg) => `
+        <div class="content-card" style="grid-row: 1; border-radius: 32px;">
+            <div class="data-label">${fieldConfig.label}</div>
+            <div class="data-number-container">
+                <span class="data-number" data-target="${displayValue}">${displayValue}</span>
+                <span class="data-unit">${unit}</span>
+            </div>
+        </div>
+        <div class="dolphin-wrapper dolphin-float" style="grid-row: 2;">
+            <img src="${poseImg}" class="dolphin-img" alt="Dolphin">
+        </div>
+        <div class="content-card" style="grid-row: 3; background: rgba(255,255,255,0.4); backdrop-filter: blur(5px);">
+             <div class="data-desc">${fieldConfig.desc.replace('{value}', displayValue + unit)}</div>
+        </div>
+    `,
+    scattered: (fieldConfig, displayValue, unit, index, total, poseImg) => `
+         <div class="dolphin-wrapper dolphin-float">
+            <img src="${poseImg}" class="dolphin-img" alt="Dolphin">
+        </div>
+        <div class="content-card">
+            <div class="data-label" style="text-align:left;">${fieldConfig.label}</div>
+            <div class="data-number-container" style="text-align:left;">
+                <span class="data-number" data-target="${displayValue}">${displayValue}</span>
+                <span class="data-unit">${unit}</span>
+            </div>
+            <div class="data-desc" style="text-align:left;">${fieldConfig.desc.replace('{value}', displayValue + unit)}</div>
+        </div>
+    `
+};
+
+const themes = ['theme-morning', 'theme-deep', 'theme-sunset', 'theme-purple'];
+const poses = ['dolphin_idle.png', 'dolphin_diving.png', 'dolphin_happy.png'];
+
+// 初始化所有页面
+function initPages() {
+    const dataContainer = document.getElementById('dataPages');
+    dataContainer.innerHTML = '';
 
     const fieldMap = data.fieldMap[currentUser.role];
     const workData = currentUser.workData;
-    const poses = dolphinPoses[currentUser.role];
 
-    // 根据角色确定要显示的字段
     let fieldsToShow = [];
     if (currentUser.role === 'DEV') {
-        fieldsToShow = ['story', 'task', 'analysis', 'PR', 'codeLine'];
+        fieldsToShow = ['story', 'task', 'analysis', 'bugFix', 'PR', 'codeLine'];
     } else if (currentUser.role === 'TESTER') {
         fieldsToShow = ['case', 'test', 'bugFound', 'release'];
     }
 
-    totalPages = fieldsToShow.length + 2; // 数据页面 + 登录页 + 祝福页
+    pages = [document.getElementById('loginPage')];
+
+    const layoutKeys = Object.keys(layoutGenerators);
 
     fieldsToShow.forEach((field, index) => {
         const fieldConfig = fieldMap[field];
-        const value = workData[field];
-        const dolphinPose = poses[index] || 'working-dolphin';
-        
-        if (fieldConfig && value !== undefined) {
-            const pageDiv = document.createElement('div');
-            pageDiv.className = 'data-page';
-            pageDiv.innerHTML = `
-                <div class="image-section">
-                    <div class="dolphin-container">
-                        <div class="dolphin ${dolphinPose}">🐬</div>
-                        <div class="bubbles">
-                            <div class="bubble"></div>
-                            <div class="bubble"></div>
-                            <div class="bubble"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="content-section">
-                    <div class="data-content">
-                        <div class="data-label">${fieldConfig.label}</div>
-                        <div class="data-number">${formatNumber(value)}</div>
-                        <div class="data-desc">${fieldConfig.desc.replace('{value}', formatNumber(value))}</div>
-                        <div class="nav-buttons">
-                            <button class="nav-btn" onclick="showPrevPage()" ${index === 0 ? 'style="visibility: hidden;"' : ''}>上一页</button>
-                            <button class="nav-btn" onclick="showNextPage()">${index === fieldsToShow.length - 1 ? '完成回顾' : '下一页'}</button>
-                        </div>
-                    </div>
-                    <div class="page-indicator">${index + 2}/${totalPages}</div>
-                </div>
-            `;
-            container.appendChild(pageDiv);
-            dataPages.push(pageDiv);
+        let value = workData[field] || 0;
+        let unit = '';
+
+        let displayValue = value;
+        if (value >= 10000) {
+            displayValue = (value / 10000).toFixed(1);
+            unit = '万';
         }
+
+        // 挑选布局和主题
+        const layoutKey = layoutKeys[index % layoutKeys.length];
+        const themeClass = themes[index % themes.length];
+
+        let poseId = 'idel.png';
+        if (field === 'bugFix' || field === 'bugFound') {
+            poseId = 'struggle.png';
+        } else if (field === 'task' || field === 'test' || field === 'codeLine') {
+            poseId = 'diving.png';
+        } else if (field === 'PR' || field === 'release') {
+            poseId = 'happy.png';
+        }
+
+        const pageDiv = document.createElement('div');
+        pageDiv.className = `page layout-${layoutKey} ${themeClass}`;
+        pageDiv.dataset.theme = themeClass; // 存一下，切换时用
+
+        pageDiv.innerHTML = `
+            ${layoutGenerators[layoutKey](fieldConfig, displayValue, unit, index, fieldsToShow.length, poseId)}
+            <div class="page-indicator">Step ${index + 1}/${fieldsToShow.length + 1}</div>
+        `;
+        dataContainer.appendChild(pageDiv);
+        pages.push(pageDiv);
     });
+
+    pages.push(document.getElementById('blessPage'));
+    totalPages = pages.length;
 }
 
-// 格式化数字显示
-function formatNumber(num) {
-    if (num >= 10000) {
-        return (num / 10000).toFixed(1) + '万';
-    }
-    return num.toLocaleString();
-}
+// 切换页面
+function showPage(index) {
+    if (index < 0 || index >= totalPages) return;
 
-// 显示下一页
-function showNextPage() {
-    const loginPage = document.getElementById('loginPage');
-    const dataContainer = document.getElementById('dataPages');
-    const blessPage = document.getElementById('blessPage');
-
-    if (loginPage.classList.contains('active')) {
-        // 从登录页到第一个数据页
-        loginPage.classList.remove('active');
-        dataContainer.classList.add('active');
-        if (dataPages.length > 0) {
-            dataPages[0].classList.add('active');
-            currentPageIndex = 0;
-        }
-    } else if (currentPageIndex < dataPages.length - 1) {
-        // 数据页之间切换
-        dataPages[currentPageIndex].classList.remove('active');
-        currentPageIndex++;
-        dataPages[currentPageIndex].classList.add('active');
+    // 移除当前活动页
+    if (currentPageIndex >= 0) {
+        pages[currentPageIndex].classList.remove('active');
     } else {
-        // 从最后一个数据页到祝福页
-        dataContainer.classList.remove('active');
-        if (dataPages.length > 0) {
-            dataPages[currentPageIndex].classList.remove('active');
-        }
+        document.getElementById('loginPage').classList.remove('active');
+    }
+
+    currentPageIndex = index;
+    const targetPage = pages[currentPageIndex];
+    targetPage.classList.add('active');
+
+    // 切换背景主题
+    const oceanBg = document.querySelector('.ocean-bg');
+    themes.forEach(t => oceanBg.classList.remove(t));
+    if (targetPage.dataset.theme) {
+        oceanBg.classList.add(targetPage.dataset.theme);
+    } else if (targetPage.id === 'blessPage') {
+        oceanBg.classList.add('theme-sunset');
+    } else {
+        oceanBg.classList.add('theme-morning');
+    }
+
+    // 触发数字动画
+    const numberEl = targetPage.querySelector('.data-number');
+    if (numberEl) {
+        const target = parseFloat(numberEl.dataset.target);
+        animateCount(numberEl, target);
+    }
+
+    // 触发进度条动画
+    const progressEl = targetPage.querySelector('.data-progress-bar');
+    if (progressEl) {
+        setTimeout(() => {
+            progressEl.style.width = progressEl.dataset.width || '100%';
+        }, 300);
+    }
+
+    // 祝福页特殊逻辑
+    if (targetPage.id === 'blessPage') {
         showBlessPage();
     }
-    updatePageIndicator();
 }
 
-// 显示上一页
-function showPrevPage() {
-    const loginPage = document.getElementById('loginPage');
-    const dataContainer = document.getElementById('dataPages');
-    const blessPage = document.getElementById('blessPage');
+// 数字增长动画
+function animateCount(el, target) {
+    let current = 0;
+    const duration = 1500;
+    const start = performance.now();
 
-    if (blessPage.classList.contains('active')) {
-        // 从祝福页回到最后一个数据页
-        blessPage.classList.remove('active');
-        dataContainer.classList.add('active');
-        if (dataPages.length > 0) {
-            currentPageIndex = dataPages.length - 1;
-            dataPages[currentPageIndex].classList.add('active');
+    const isInt = Number.isInteger(target);
+
+    function update(now) {
+        const elapsed = now - start;
+        const progress = Math.min(elapsed / duration, 1);
+
+        // Ease out quad
+        const easeProgress = progress * (2 - progress);
+        current = target * easeProgress;
+
+        el.textContent = isInt ? Math.floor(current).toLocaleString() : current.toFixed(1);
+
+        if (progress < 1) {
+            requestAnimationFrame(update);
+        } else {
+            el.textContent = isInt ? target.toLocaleString() : target.toFixed(1);
         }
-    } else if (currentPageIndex > 0) {
-        // 数据页之间切换
-        dataPages[currentPageIndex].classList.remove('active');
-        currentPageIndex--;
-        dataPages[currentPageIndex].classList.add('active');
-    } else if (dataContainer.classList.contains('active') && currentPageIndex === 0) {
-        // 从第一个数据页回到登录页
-        dataContainer.classList.remove('active');
-        dataPages[0].classList.remove('active');
-        loginPage.classList.add('active');
-        currentPageIndex = -1;
     }
-    updatePageIndicator();
+    requestAnimationFrame(update);
 }
 
-// 显示祝福页面
+// 显示祝福页
 function showBlessPage() {
-    const blessPage = document.getElementById('blessPage');
     const randomBless = data.summaryTexts[Math.floor(Math.random() * data.summaryTexts.length)];
-    
     document.getElementById('blessTitle').textContent = randomBless.title;
     document.getElementById('blessContent').textContent = randomBless.content;
-    
-    blessPage.classList.add('active');
-    updatePageIndicator();
 }
 
 // 重新开始
 function restart() {
-    // 重置所有状态
     currentUser = null;
-    currentPageIndex = 0;
-    dataPages = [];
-    totalPages = 0;
-    
-    // 清空输入框，但保留默认值
-    document.getElementById('username').value = 'leon';
-    document.getElementById('password').value = 'leon123';
-    document.getElementById('errorMsg').textContent = '';
-    
-    // 隐藏所有页面，显示登录页
-    document.querySelectorAll('.page').forEach(page => {
-        page.classList.remove('active');
-    });
+    currentPageIndex = -1;
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.getElementById('loginPage').classList.add('active');
-    
-    // 清空数据页面容器
-    document.getElementById('dataPages').innerHTML = '';
-    
-    // 更新页面指示器
-    updatePageIndicator();
 }
 
-// 更新页面指示器
-function updatePageIndicator() {
-    const loginPage = document.getElementById('loginPage');
-    const dataContainer = document.getElementById('dataPages');
-    const blessPage = document.getElementById('blessPage');
-    
-    let currentPage = 1;
-    let total = totalPages || 1;
-    
-    if (loginPage.classList.contains('active')) {
-        currentPage = 1;
-    } else if (dataContainer.classList.contains('active')) {
-        currentPage = currentPageIndex + 2;
-    } else if (blessPage.classList.contains('active')) {
-        currentPage = total;
-    }
-    
-    // 更新所有页面的指示器
-    const indicators = document.querySelectorAll('.page-indicator');
-    indicators.forEach(indicator => {
-        indicator.textContent = `${currentPage}/${total}`;
-    });
+// 气泡生成
+function createBubbles() {
+    const container = document.getElementById('bubblesContainer');
+    setInterval(() => {
+        const bubble = document.createElement('div');
+        bubble.className = 'bubble-bg';
+        const size = Math.random() * 15 + 10 + 'px';
+        bubble.style.width = size;
+        bubble.style.height = size;
+        bubble.style.left = Math.random() * 100 + '%';
+        bubble.style.setProperty('--duration', Math.random() * 4 + 4 + 's');
+        container.appendChild(bubble);
+        setTimeout(() => bubble.remove(), 8000);
+    }, 800);
 }
 
-// 触摸事件处理
+// 触摸交互
 function handleTouchStart(e) {
     startY = e.touches[0].clientY;
-    startTime = Date.now();
-    isScrolling = false;
-}
-
-function handleTouchMove(e) {
-    if (!startY) return;
-    
-    const currentY = e.touches[0].clientY;
-    const diffY = startY - currentY;
-    
-    // 如果垂直滑动距离超过水平滑动距离，则认为是垂直滑动
-    if (Math.abs(diffY) > 10) {
-        isScrolling = true;
-        e.preventDefault(); // 阻止默认滚动行为
-    }
+    isMoving = true;
 }
 
 function handleTouchEnd(e) {
-    if (!startY || !isScrolling) return;
-    
+    if (!isMoving) return;
     const endY = e.changedTouches[0].clientY;
-    const diffY = startY - endY;
-    const diffTime = Date.now() - startTime;
-    
-    // 滑动距离和时间的阈值
-    const minSwipeDistance = 50;
-    const maxSwipeTime = 300;
-    
-    if (Math.abs(diffY) > minSwipeDistance && diffTime < maxSwipeTime) {
-        if (diffY > 0) {
-            // 向上滑动 - 下一页
-            showNextPage();
-        } else {
-            // 向下滑动 - 上一页
-            showPrevPage();
+    const diff = startY - endY;
+
+    if (Math.abs(diff) > 50) {
+        if (diff > 0 && currentPageIndex < totalPages - 1 && currentUser) {
+            // 向上滑 -> 下一页
+            showPage(currentPageIndex + 1);
+        } else if (diff < 0 && currentPageIndex > 0) {
+            // 向下滑 -> 上一页
+            showPage(currentPageIndex - 1);
         }
     }
-    
-    // 重置
-    startY = 0;
-    startTime = 0;
-    isScrolling = false;
+    isMoving = false;
 }
 
-// 键盘事件监听
-document.addEventListener('keydown', function(event) {
-    if (event.key === 'Enter') {
-        const loginPage = document.getElementById('loginPage');
-        if (loginPage.classList.contains('active')) {
+// 初始化
+document.addEventListener('DOMContentLoaded', () => {
+    loadConfig();
+    createBubbles();
+
+    document.addEventListener('touchstart', handleTouchStart);
+    document.addEventListener('touchend', handleTouchEnd);
+
+    // 监听 Enter 键
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && currentPageIndex === -1) {
             login();
         }
-    }
-});
-
-// 页面加载完成后的初始化
-document.addEventListener('DOMContentLoaded', async function() {
-    // 加载配置数据
-    await loadConfig();
-    
-    // 添加触摸事件监听
-    document.addEventListener('touchstart', handleTouchStart, { passive: false });
-    document.addEventListener('touchmove', handleTouchMove, { passive: false });
-    document.addEventListener('touchend', handleTouchEnd, { passive: false });
-    
-    // 为输入框添加焦点效果
-    const inputs = document.querySelectorAll('input');
-    inputs.forEach(input => {
-        input.addEventListener('focus', function() {
-            this.style.transform = 'scale(1.02)';
-        });
-        input.addEventListener('blur', function() {
-            this.style.transform = 'scale(1)';
-        });
     });
-    
-    // 初始化页面指示器
-    updatePageIndicator();
 });
