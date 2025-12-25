@@ -347,7 +347,17 @@ body {
     height: 100%;
     object-fit: contain;
     filter: drop-shadow(0 20px 40px rgba(0, 133, 255, 0.2));
-    transition: transform 0.5s ease;
+    transition: transform 0.5s ease, opacity 0.3s ease;
+    background: linear-gradient(45deg, #e3f2fd, #bbdefb);
+    border-radius: 50%;
+}
+
+.dolphin-img:not([src]), .dolphin-img[src=""] {
+    opacity: 0.5;
+}
+
+.dolphin-img[src]:not([src=""]) {
+    opacity: 1;
 }
 
 .dolphin-float {

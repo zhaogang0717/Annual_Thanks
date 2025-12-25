@@ -28,6 +28,12 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         self.send_header('Access-Control-Allow-Origin', '*')
         self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
         self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+        
+        # 为图片文件添加缓存头
+        if self.path.endswith(('.png', '.jpg', '.jpeg', '.gif', '.webp')):
+            self.send_header('Cache-Control', 'public, max-age=86400')  # 缓存1天
+            self.send_header('Expires', 'Thu, 31 Dec 2025 23:59:59 GMT')
+        
         super().end_headers()
 
 def main():

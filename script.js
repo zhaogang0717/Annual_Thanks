@@ -8,6 +8,33 @@ let currentPageIndex = -1;
 let pages = [];
 let totalPages = 0;
 
+// 图片预加载
+const imageCache = new Map();
+const imagesToPreload = ['idel.png', 'diving.png', 'happy.png', 'struggle.png'];
+let imagesLoaded = 0;
+
+function preloadImages() {
+    console.log('开始预加载图片...');
+    
+    imagesToPreload.forEach(src => {
+        const img = new Image();
+        img.onload = () => {
+            imageCache.set(src, img);
+            imagesLoaded++;
+            console.log(`图片 ${src} 预加载完成 (${imagesLoaded}/${imagesToPreload.length})`);
+            
+            if (imagesLoaded === imagesToPreload.length) {
+                console.log('所有图片预加载完成');
+            }
+        };
+        img.onerror = () => {
+            console.error(`图片 ${src} 预加载失败`);
+            imagesLoaded++;
+        };
+        img.src = src;
+    });
+}
+
 // 加载配置数据
 async function loadConfig() {
     try {
@@ -133,7 +160,7 @@ function initPages() {
         
         pageDiv.innerHTML = `
             <div class="dolphin-wrapper dolphin-float">
-                <img src="${poseId}" class="dolphin-img" alt="Dolphin">
+                <img src="${poseId}" class="dolphin-img" alt="Dolphin" loading="lazy" style="background: linear-gradient(45deg, #e3f2fd, #bbdefb); border-radius: 50%;">
             </div>
             <div class="content-card">
                 <div class="data-label">${fieldConfig.label}</div>
@@ -241,6 +268,9 @@ function handleTouchEnd(e) {
 // 页面加载完成后的初始化
 document.addEventListener('DOMContentLoaded', () => {
     console.log('页面DOM加载完成');
+    
+    // 立即开始预加载图片
+    preloadImages();
     
     loadConfig().then(() => {
         console.log('配置加载完成');
