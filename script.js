@@ -1,125 +1,89 @@
+// 2025年度工作总结 - JavaScript
+console.log('JavaScript文件已加载');
+
 // 全局变量
 let data = null;
 let currentUser = null;
-let currentPageIndex = -1; // -1 表示登录页
-let pages = []; // 存储所有页面 DOM
+let currentPageIndex = -1;
+let pages = [];
 let totalPages = 0;
-
-// 触摸事件相关
-let startY = 0;
-let isMoving = false;
 
 // 加载配置数据
 async function loadConfig() {
     try {
+        console.log('开始加载配置文件...');
         const response = await fetch('bill-config.json');
+        console.log('配置文件响应状态:', response.status);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         data = await response.json();
+        console.log('配置文件加载成功');
+        return true;
     } catch (error) {
         console.error('加载配置文件失败:', error);
+        data = null;
+        return false;
     }
 }
 
 // 登录功能
 async function login() {
-    if (!data) return;
+    console.log('登录函数被调用');
+    
+    try {
+        // 如果数据还没加载，先加载数据
+        if (!data) {
+            console.log('数据未加载，开始加载...');
+            const loaded = await loadConfig();
+            if (!loaded) {
+                console.log('数据加载失败');
+                document.getElementById('errorMsg').textContent = '系统初始化失败，请刷新页面重试';
+                return;
+            }
+        }
 
-    const username = document.getElementById('username').value.trim();
-    const password = document.getElementById('password').value.trim();
-    const errorMsg = document.getElementById('errorMsg');
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value.trim();
+        const errorMsg = document.getElementById('errorMsg');
 
-    const user = data.users.find(u => u.name === username && u.password === password);
+        console.log('用户输入:', username, password);
 
-    if (!user) {
-        errorMsg.textContent = '用户名或密码错误哦~';
-        setTimeout(() => errorMsg.textContent = '', 2000);
-        return;
+        const user = data.users.find(u => u.name === username && u.password === password);
+
+        if (!user) {
+            console.log('用户验证失败');
+            errorMsg.textContent = '用户名或密码错误哦~';
+            setTimeout(() => errorMsg.textContent = '', 2000);
+            return;
+        }
+
+        console.log('用户验证成功:', user);
+        currentUser = user;
+        
+        console.log('开始初始化页面');
+        initPages();
+        
+        console.log('页面初始化完成，总页数:', totalPages);
+        
+        if (totalPages > 0) {
+            console.log('开始显示第一页');
+            showPage(0);
+        } else {
+            console.log('没有页面可显示');
+        }
+    } catch (error) {
+        console.error('登录过程中发生错误:', error);
+        document.getElementById('errorMsg').textContent = '登录过程中发生错误，请重试';
     }
-
-    currentUser = user;
-    initPages();
-    showPage(0); // 显示第一个数据页
 }
 
-// 布局生成器集合
-const layoutGenerators = {
-    classic: (fieldConfig, displayValue, unit, index, total, poseImg) => `
-        <div class="dolphin-wrapper dolphin-float">
-            <img src="${poseImg}" class="dolphin-img" alt="Dolphin">
-        </div>
-        <div class="content-card">
-            <div class="data-label">${fieldConfig.label}</div>
-            <div class="data-number-container">
-                <span class="data-number" data-target="${displayValue}">${displayValue}</span>
-                <span class="data-unit">${unit}</span>
-            </div>
-            <div class="data-desc">${fieldConfig.desc.replace('{value}', displayValue + unit)}</div>
-        </div>
-    `,
-    hero: (fieldConfig, displayValue, unit, index, total, poseImg) => `
-        <div class="dolphin-wrapper dolphin-float">
-            <img src="${poseImg}" class="dolphin-img" alt="Dolphin">
-        </div>
-        <div class="layout-hero-content">
-            <div class="data-label">${fieldConfig.label}</div>
-            <div class="data-number-container">
-                <span class="data-number" data-target="${displayValue}">${displayValue}</span>
-                <span class="data-unit">${unit}</span>
-            </div>
-            <div class="data-desc">${fieldConfig.desc.replace('{value}', displayValue + unit)}</div>
-        </div>
-    `,
-    split: (fieldConfig, displayValue, unit, index, total, poseImg) => `
-        <div class="layout-split-part layout-split-top">
-            <div class="dolphin-wrapper dolphin-float">
-               <img src="${poseImg}" class="dolphin-img" alt="Dolphin">
-            </div>
-        </div>
-        <div class="layout-split-part layout-split-bottom">
-            <div class="content-card">
-                <div class="data-label">${fieldConfig.label}</div>
-                <div class="data-number-container">
-                    <span class="data-number" data-target="${displayValue}">${displayValue}</span>
-                    <span class="data-unit">${unit}</span>
-                </div>
-                <div class="data-desc">${fieldConfig.desc.replace('{value}', displayValue + unit)}</div>
-            </div>
-        </div>
-    `,
-    bento: (fieldConfig, displayValue, unit, index, total, poseImg) => `
-        <div class="content-card" style="grid-row: 1; border-radius: 32px;">
-            <div class="data-label">${fieldConfig.label}</div>
-            <div class="data-number-container">
-                <span class="data-number" data-target="${displayValue}">${displayValue}</span>
-                <span class="data-unit">${unit}</span>
-            </div>
-        </div>
-        <div class="dolphin-wrapper dolphin-float" style="grid-row: 2;">
-            <img src="${poseImg}" class="dolphin-img" alt="Dolphin">
-        </div>
-        <div class="content-card" style="grid-row: 3; background: rgba(255,255,255,0.4); backdrop-filter: blur(5px);">
-             <div class="data-desc">${fieldConfig.desc.replace('{value}', displayValue + unit)}</div>
-        </div>
-    `,
-    scattered: (fieldConfig, displayValue, unit, index, total, poseImg) => `
-         <div class="dolphin-wrapper dolphin-float">
-            <img src="${poseImg}" class="dolphin-img" alt="Dolphin">
-        </div>
-        <div class="content-card">
-            <div class="data-label" style="text-align:left;">${fieldConfig.label}</div>
-            <div class="data-number-container" style="text-align:left;">
-                <span class="data-number" data-target="${displayValue}">${displayValue}</span>
-                <span class="data-unit">${unit}</span>
-            </div>
-            <div class="data-desc" style="text-align:left;">${fieldConfig.desc.replace('{value}', displayValue + unit)}</div>
-        </div>
-    `
-};
-
-const themes = ['theme-morning', 'theme-deep', 'theme-sunset', 'theme-purple'];
-const poses = ['dolphin_idle.png', 'dolphin_diving.png', 'dolphin_happy.png'];
-
-// 初始化所有页面
+// 初始化页面
 function initPages() {
+    console.log('initPages被调用');
+    
     const dataContainer = document.getElementById('dataPages');
     dataContainer.innerHTML = '';
 
@@ -133,11 +97,13 @@ function initPages() {
         fieldsToShow = ['case', 'test', 'bugFound', 'release'];
     }
 
-    pages = [document.getElementById('loginPage')];
+    console.log('要显示的字段:', fieldsToShow);
 
-    const layoutKeys = Object.keys(layoutGenerators);
+    pages = [];
 
     fieldsToShow.forEach((field, index) => {
+        console.log(`处理字段 ${field}, 索引 ${index}`);
+        
         const fieldConfig = fieldMap[field];
         let value = workData[field] || 0;
         let unit = '';
@@ -148,107 +114,85 @@ function initPages() {
             unit = '万';
         }
 
-        // 挑选布局和主题
-        const layoutKey = layoutKeys[index % layoutKeys.length];
-        const themeClass = themes[index % themes.length];
-
-        let poseId = 'idel.png';
+        // 根据字段选择不同的海豚图片
+        let poseId = 'idel.png'; // 默认图片
         if (field === 'bugFix' || field === 'bugFound') {
-            poseId = 'struggle.png';
+            poseId = 'struggle.png'; // 修复bug时的困难表情
         } else if (field === 'task' || field === 'test' || field === 'codeLine') {
-            poseId = 'diving.png';
+            poseId = 'diving.png'; // 工作中的专注表情
         } else if (field === 'PR' || field === 'release') {
-            poseId = 'happy.png';
+            poseId = 'happy.png'; // 完成工作的开心表情
+        } else if (field === 'story' || field === 'case') {
+            poseId = 'idel.png'; // 开始工作的平静表情
+        } else if (field === 'analysis') {
+            poseId = 'diving.png'; // 分析问题的专注表情
         }
 
         const pageDiv = document.createElement('div');
-        pageDiv.className = `page layout-${layoutKey} ${themeClass}`;
-        pageDiv.dataset.theme = themeClass; // 存一下，切换时用
-
+        pageDiv.className = 'page';
+        
         pageDiv.innerHTML = `
-            ${layoutGenerators[layoutKey](fieldConfig, displayValue, unit, index, fieldsToShow.length, poseId)}
-            <div class="page-indicator">Step ${index + 1}/${fieldsToShow.length + 1}</div>
+            <div class="dolphin-wrapper dolphin-float">
+                <img src="${poseId}" class="dolphin-img" alt="Dolphin">
+            </div>
+            <div class="content-card">
+                <div class="data-label">${fieldConfig.label}</div>
+                <div class="data-number-container">
+                    <span class="data-number">${displayValue}</span>
+                    <span class="data-unit">${unit}</span>
+                </div>
+                <div class="data-desc">${fieldConfig.desc.replace('{value}', displayValue + unit)}</div>
+            </div>
+            <div class="page-indicator">${index + 1}/${fieldsToShow.length + 1}</div>
         `;
+        
         dataContainer.appendChild(pageDiv);
         pages.push(pageDiv);
+        
+        console.log(`页面 ${index} 创建完成`);
     });
 
     pages.push(document.getElementById('blessPage'));
     totalPages = pages.length;
+    
+    console.log('页面初始化完成，总页数:', totalPages);
 }
 
 // 切换页面
 function showPage(index) {
-    if (index < 0 || index >= totalPages) return;
+    console.log('showPage被调用，索引:', index);
+    
+    if (index < 0 || index >= totalPages) {
+        console.log('索引超出范围');
+        return;
+    }
 
     // 移除当前活动页
-    if (currentPageIndex >= 0) {
-        pages[currentPageIndex].classList.remove('active');
-    } else {
+    if (currentPageIndex === -1) {
+        console.log('从登录页切换');
         document.getElementById('loginPage').classList.remove('active');
+    } else if (currentPageIndex >= 0 && currentPageIndex < pages.length) {
+        console.log('从数据页切换');
+        pages[currentPageIndex].classList.remove('active');
     }
 
     currentPageIndex = index;
     const targetPage = pages[currentPageIndex];
+    
+    console.log('目标页面:', targetPage);
+    
+    if (!targetPage) {
+        console.log('目标页面不存在');
+        return;
+    }
+    
     targetPage.classList.add('active');
-
-    // 切换背景主题
-    const oceanBg = document.querySelector('.ocean-bg');
-    themes.forEach(t => oceanBg.classList.remove(t));
-    if (targetPage.dataset.theme) {
-        oceanBg.classList.add(targetPage.dataset.theme);
-    } else if (targetPage.id === 'blessPage') {
-        oceanBg.classList.add('theme-sunset');
-    } else {
-        oceanBg.classList.add('theme-morning');
-    }
-
-    // 触发数字动画
-    const numberEl = targetPage.querySelector('.data-number');
-    if (numberEl) {
-        const target = parseFloat(numberEl.dataset.target);
-        animateCount(numberEl, target);
-    }
-
-    // 触发进度条动画
-    const progressEl = targetPage.querySelector('.data-progress-bar');
-    if (progressEl) {
-        setTimeout(() => {
-            progressEl.style.width = progressEl.dataset.width || '100%';
-        }, 300);
-    }
+    console.log('页面切换完成');
 
     // 祝福页特殊逻辑
     if (targetPage.id === 'blessPage') {
         showBlessPage();
     }
-}
-
-// 数字增长动画
-function animateCount(el, target) {
-    let current = 0;
-    const duration = 1500;
-    const start = performance.now();
-
-    const isInt = Number.isInteger(target);
-
-    function update(now) {
-        const elapsed = now - start;
-        const progress = Math.min(elapsed / duration, 1);
-
-        // Ease out quad
-        const easeProgress = progress * (2 - progress);
-        current = target * easeProgress;
-
-        el.textContent = isInt ? Math.floor(current).toLocaleString() : current.toFixed(1);
-
-        if (progress < 1) {
-            requestAnimationFrame(update);
-        } else {
-            el.textContent = isInt ? target.toLocaleString() : target.toFixed(1);
-        }
-    }
-    requestAnimationFrame(update);
 }
 
 // 显示祝福页
@@ -262,27 +206,18 @@ function showBlessPage() {
 function restart() {
     currentUser = null;
     currentPageIndex = -1;
+    pages = [];
+    totalPages = 0;
+    
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.getElementById('loginPage').classList.add('active');
+    document.getElementById('dataPages').innerHTML = '';
 }
 
-// 气泡生成
-function createBubbles() {
-    const container = document.getElementById('bubblesContainer');
-    setInterval(() => {
-        const bubble = document.createElement('div');
-        bubble.className = 'bubble-bg';
-        const size = Math.random() * 15 + 10 + 'px';
-        bubble.style.width = size;
-        bubble.style.height = size;
-        bubble.style.left = Math.random() * 100 + '%';
-        bubble.style.setProperty('--duration', Math.random() * 4 + 4 + 's');
-        container.appendChild(bubble);
-        setTimeout(() => bubble.remove(), 8000);
-    }, 800);
-}
+// 触摸事件
+let startY = 0;
+let isMoving = false;
 
-// 触摸交互
 function handleTouchStart(e) {
     startY = e.touches[0].clientY;
     isMoving = true;
@@ -295,20 +230,21 @@ function handleTouchEnd(e) {
 
     if (Math.abs(diff) > 50) {
         if (diff > 0 && currentPageIndex < totalPages - 1 && currentUser) {
-            // 向上滑 -> 下一页
             showPage(currentPageIndex + 1);
         } else if (diff < 0 && currentPageIndex > 0) {
-            // 向下滑 -> 上一页
             showPage(currentPageIndex - 1);
         }
     }
     isMoving = false;
 }
 
-// 初始化
+// 页面加载完成后的初始化
 document.addEventListener('DOMContentLoaded', () => {
-    loadConfig();
-    createBubbles();
+    console.log('页面DOM加载完成');
+    
+    loadConfig().then(() => {
+        console.log('配置加载完成');
+    });
 
     document.addEventListener('touchstart', handleTouchStart);
     document.addEventListener('touchend', handleTouchEnd);
@@ -319,4 +255,6 @@ document.addEventListener('DOMContentLoaded', () => {
             login();
         }
     });
+    
+    console.log('事件监听器已设置');
 });
