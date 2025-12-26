@@ -31,6 +31,14 @@ const complimentCategoryMap = {
     }
 };
 
+function buildValueMarkup(displayValue, unit) {
+    const valueText = String(displayValue);
+    if (unit) {
+        return `<span class="data-value-inline"><span class="data-number data-number-inline">${valueText}</span><span class="data-unit-inline">${unit}</span></span>`;
+    }
+    return `<span class="data-value-inline"><span class="data-number data-number-inline">${valueText}</span></span>`;
+}
+
 function pickRandomItem(items) {
     if (!items || items.length === 0) {
         return null;
@@ -207,6 +215,8 @@ function initPages() {
             unit = '万';
         }
 
+        const valueMarkup = buildValueMarkup(displayValue, unit);
+
         // 根据字段选择不同的海豚图片
         let poseId = 'idel.png'; // 默认图片
         if (field === 'bugFix' || field === 'bugFound') {
@@ -231,12 +241,7 @@ function initPages() {
                 <img src="${poseId}" class="dolphin-img" alt="Dolphin" loading="lazy" style="background: linear-gradient(45deg, #e3f2fd, #bbdefb); border-radius: 50%;">
             </div>
             <div class="content-card">
-                <div class="data-label">${fieldConfig.label}</div>
-                <div class="data-number-container">
-                    <span class="data-number">${displayValue}</span>
-                    <span class="data-unit">${unit}</span>
-                </div>
-                <div class="data-desc">${fieldConfig.desc.replace('{value}', displayValue + unit)}</div>
+                <div class="data-desc">${fieldConfig.desc.replace('{value}', valueMarkup)}</div>
                 ${complimentHtml}
             </div>
             <div class="page-indicator">${index + 1}/${fieldsToShow.length + 1}</div>

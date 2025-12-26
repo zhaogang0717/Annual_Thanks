@@ -487,9 +487,29 @@ input:focus {
     font-weight: 500;
 }
 
+.content-card .data-desc:first-child {
+    margin-top: 0;
+}
+
+.data-value-inline {
+    white-space: nowrap;
+}
+
+.data-number-inline {
+    display: inline-block;
+    line-height: 1;
+    vertical-align: baseline;
+}
+
+.data-unit-inline {
+    font-size: inherit;
+    font-weight: inherit;
+    color: inherit;
+}
+
 .data-compliment {
     margin-top: 8px;
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 600;
     color: var(--color-secondary);
 }
