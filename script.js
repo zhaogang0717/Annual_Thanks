@@ -7,11 +7,75 @@ let currentUser = null;
 let currentPageIndex = -1;
 let pages = [];
 let totalPages = 0;
+let complimentsByField = {};
 
 // 图片预加载
 const imageCache = new Map();
 const imagesToPreload = ['idel.png', 'diving.png', 'happy.png', 'struggle.png'];
 let imagesLoaded = 0;
+
+const complimentCategoryMap = {
+    DEV: {
+        story: 'deliver',
+        task: 'deliver',
+        analysis: 'bug',
+        bugFix: 'bug',
+        PR: 'code',
+        codeLine: 'code'
+    },
+    TESTER: {
+        case: 'case',
+        test: 'test',
+        bugFound: 'bug',
+        release: 'release'
+    }
+};
+
+function pickRandomItem(items) {
+    if (!items || items.length === 0) {
+        return null;
+    }
+    return items[Math.floor(Math.random() * items.length)];
+}
+
+function buildComplimentsByField(fieldsToShow) {
+    const role = currentUser?.role;
+    const roleCompliments = data?.compliments?.[role];
+    if (!role || !roleCompliments) {
+        return {};
+    }
+
+    const availableByCategory = {};
+    Object.keys(roleCompliments).forEach(category => {
+        availableByCategory[category] = [...roleCompliments[category]];
+    });
+
+    const used = new Set();
+    const byField = {};
+
+    fieldsToShow.forEach(field => {
+        const category = complimentCategoryMap[role]?.[field];
+        if (!category || !availableByCategory[category]) {
+            return;
+        }
+
+        const candidates = availableByCategory[category].filter(text => !used.has(text));
+        const chosen = pickRandomItem(candidates);
+        if (!chosen) {
+            return;
+        }
+
+        used.add(chosen);
+        byField[field] = chosen;
+
+        const removeIndex = availableByCategory[category].indexOf(chosen);
+        if (removeIndex >= 0) {
+            availableByCategory[category].splice(removeIndex, 1);
+        }
+    });
+
+    return byField;
+}
 
 function preloadImages() {
     console.log('开始预加载图片...');
@@ -126,6 +190,8 @@ function initPages() {
 
     console.log('要显示的字段:', fieldsToShow);
 
+    complimentsByField = buildComplimentsByField(fieldsToShow);
+
     pages = [];
 
     fieldsToShow.forEach((field, index) => {
@@ -157,6 +223,8 @@ function initPages() {
 
         const pageDiv = document.createElement('div');
         pageDiv.className = 'page';
+        const compliment = complimentsByField[field];
+        const complimentHtml = compliment ? `<div class="data-compliment">${compliment}</div>` : '';
         
         pageDiv.innerHTML = `
             <div class="dolphin-wrapper dolphin-float">
@@ -169,6 +237,7 @@ function initPages() {
                     <span class="data-unit">${unit}</span>
                 </div>
                 <div class="data-desc">${fieldConfig.desc.replace('{value}', displayValue + unit)}</div>
+                ${complimentHtml}
             </div>
             <div class="page-indicator">${index + 1}/${fieldsToShow.length + 1}</div>
         `;
@@ -235,6 +304,7 @@ function restart() {
     currentPageIndex = -1;
     pages = [];
     totalPages = 0;
+    complimentsByField = {};
     
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.getElementById('loginPage').classList.add('active');
