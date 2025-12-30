@@ -24,12 +24,18 @@
     -webkit-tap-highlight-color: transparent;
 }
 
+html,
+body {
+    overscroll-behavior: none;
+}
+
 body {
     font-family: 'Fredoka', 'Outfit', sans-serif;
     color: var(--color-text-main);
     background-color: var(--bg-primary);
     overflow: hidden;
     height: 100vh;
+    height: 100dvh;
     width: 100vw;
     position: fixed;
 }
@@ -582,12 +588,12 @@ input:focus {
 }
 
 @media (hover: none) and (pointer: coarse) {
-    #loginPage:focus-within {
+    #loginPage.keyboard-open {
         justify-content: flex-start;
         padding-top: 8vh;
     }
 
-    #loginPage:focus-within .dolphin-wrapper {
+    #loginPage.keyboard-open .dolphin-wrapper {
         display: none;
     }
 }

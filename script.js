@@ -190,6 +190,7 @@ async function login() {
         if (totalPages > 0) {
             console.log('开始显示第一页');
             showPage(0);
+            blurActiveElement();
         } else {
             console.log('没有页面可显示');
         }
@@ -370,19 +371,128 @@ function restart() {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.getElementById('loginPage').classList.add('active');
     document.getElementById('dataPages').innerHTML = '';
+    document.getElementById('loginPage').classList.remove('keyboard-open');
+}
+
+function blurActiveElement() {
+    const activeElement = document.activeElement;
+    if (activeElement && typeof activeElement.blur === 'function') {
+        activeElement.blur();
+    }
+}
+
+function setLoginKeyboardState(isOpen) {
+    const loginPage = document.getElementById('loginPage');
+    if (!loginPage) {
+        return;
+    }
+    loginPage.classList.toggle('keyboard-open', isOpen);
+}
+
+function updateKeyboardStateFromViewport() {
+    if (!window.visualViewport) {
+        return;
+    }
+    const heightDiff = window.innerHeight - window.visualViewport.height;
+    const active = document.activeElement;
+    const isInputFocused = active && active.tagName === 'INPUT';
+
+    if (heightDiff > 100) {
+        setLoginKeyboardState(true);
+    } else if (!isInputFocused) {
+        setLoginKeyboardState(false);
+    }
+}
+
+function setupKeyboardAvoidance() {
+    const loginPage = document.getElementById('loginPage');
+    if (!loginPage) {
+        return;
+    }
+
+    const inputs = loginPage.querySelectorAll('input');
+    if (!inputs.length) {
+        return;
+    }
+
+    inputs.forEach(input => {
+        input.addEventListener('focus', (event) => {
+            setLoginKeyboardState(true);
+            if (typeof event.target.scrollIntoView === 'function') {
+                event.target.scrollIntoView({ block: 'center', behavior: 'smooth' });
+            }
+        });
+
+        input.addEventListener('blur', () => {
+            window.setTimeout(() => {
+                const active = document.activeElement;
+                if (active && active.tagName === 'INPUT') {
+                    return;
+                }
+                if (window.visualViewport) {
+                    updateKeyboardStateFromViewport();
+                } else {
+                    setLoginKeyboardState(false);
+                }
+            }, 120);
+        });
+    });
+
+    if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', updateKeyboardStateFromViewport);
+    }
 }
 
 // 触摸事件
 let startY = 0;
+let startX = 0;
 let isMoving = false;
+let startOnEditable = false;
+
+function isEditableTarget(target) {
+    if (!target || typeof target.closest !== 'function') {
+        return false;
+    }
+    return target.closest('input, textarea, select, [contenteditable="true"]');
+}
 
 function handleTouchStart(e) {
+    if (e.touches.length !== 1) {
+        isMoving = false;
+        return;
+    }
     startY = e.touches[0].clientY;
-    isMoving = true;
+    startX = e.touches[0].clientX;
+    startOnEditable = isEditableTarget(e.target);
+    isMoving = !startOnEditable;
+}
+
+function handleTouchMove(e) {
+    if (!isMoving || !e.cancelable) {
+        return;
+    }
+    if (startOnEditable || isEditableTarget(e.target)) {
+        return;
+    }
+    if (e.touches.length !== 1) {
+        return;
+    }
+
+    const currentY = e.touches[0].clientY;
+    const currentX = e.touches[0].clientX;
+    const diffY = Math.abs(currentY - startY);
+    const diffX = Math.abs(currentX - startX);
+
+    if (diffY > diffX) {
+        e.preventDefault();
+    }
 }
 
 function handleTouchEnd(e) {
-    if (!isMoving) return;
+    if (!isMoving) {
+        startOnEditable = false;
+        return;
+    }
     const endY = e.changedTouches[0].clientY;
     const diff = startY - endY;
 
@@ -394,6 +504,12 @@ function handleTouchEnd(e) {
         }
     }
     isMoving = false;
+    startOnEditable = false;
+}
+
+function handleTouchCancel() {
+    isMoving = false;
+    startOnEditable = false;
 }
 
 // 页面加载完成后的初始化
@@ -407,8 +523,12 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('配置加载完成');
     });
 
+    setupKeyboardAvoidance();
+
     document.addEventListener('touchstart', handleTouchStart);
+    document.addEventListener('touchmove', handleTouchMove, { passive: false });
     document.addEventListener('touchend', handleTouchEnd);
+    document.addEventListener('touchcancel', handleTouchCancel);
 
     // 监听 Enter 键
     document.addEventListener('keydown', (e) => {
