@@ -127,6 +127,25 @@ async function loadConfig() {
     }
 }
 
+function setWelcomeMessage() {
+    const subtitleEl = document.getElementById('welcomeSubtitle');
+    const displayName = currentUser?.name ? `，${currentUser.name}` : '';
+
+    if (subtitleEl) {
+        subtitleEl.textContent = `欢迎回来${displayName}，准备开启你的年度回顾。`;
+    }
+}
+
+function continueFromWelcome() {
+    if (!currentUser) {
+        return;
+    }
+
+    if (currentPageIndex < totalPages - 1) {
+        showPage(currentPageIndex + 1);
+    }
+}
+
 // 登录功能
 async function login() {
     console.log('登录函数被调用');
@@ -163,6 +182,8 @@ async function login() {
         
         console.log('开始初始化页面');
         initPages();
+
+        setWelcomeMessage();
         
         console.log('页面初始化完成，总页数:', totalPages);
         
@@ -200,6 +221,10 @@ function initPages() {
     complimentsByField = buildComplimentsByField(fieldsToShow);
 
     pages = [];
+    const welcomePage = document.getElementById('welcomePage');
+    if (welcomePage) {
+        pages.push(welcomePage);
+    }
 
     fieldsToShow.forEach((field, index) => {
         console.log(`处理字段 ${field}, 索引 ${index}`);
@@ -252,7 +277,10 @@ function initPages() {
         console.log(`页面 ${index} 创建完成`);
     });
 
-    pages.push(document.getElementById('blessPage'));
+    const blessPage = document.getElementById('blessPage');
+    if (blessPage) {
+        pages.push(blessPage);
+    }
     totalPages = pages.length;
     
     console.log('页面初始化完成，总页数:', totalPages);
@@ -355,8 +383,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 监听 Enter 键
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && currentPageIndex === -1) {
-            login();
+        if (e.key === 'Enter') {
+            if (currentPageIndex === -1) {
+                login();
+            } else if (pages[currentPageIndex]?.id === 'welcomePage') {
+                continueFromWelcome();
+            }
         }
     });
     

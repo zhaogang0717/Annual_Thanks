@@ -436,6 +436,18 @@ input:focus {
     transform: scale(0.98);
 }
 
+/* Welcome Page */
+.welcome-btn {
+    margin-top: 20px;
+}
+
+.welcome-hint {
+    margin-top: 12px;
+    font-size: 12px;
+    color: var(--color-text-muted);
+    letter-spacing: 1px;
+}
+
 /* Data Display */
 .data-label {
     font-size: 14px;
@@ -566,6 +578,17 @@ input:focus {
 
     .layout-hero .data-number {
         font-size: 64px;
+    }
+}
+
+@media (hover: none) and (pointer: coarse) {
+    #loginPage:focus-within {
+        justify-content: flex-start;
+        padding-top: 8vh;
+    }
+
+    #loginPage:focus-within .dolphin-wrapper {
+        display: none;
     }
 }
 
