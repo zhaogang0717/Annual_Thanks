@@ -206,76 +206,105 @@ function initPages() {
     const dataContainer = document.getElementById('dataPages');
     dataContainer.innerHTML = '';
 
-    const fieldMap = data.fieldMap[currentUser.role];
-    const workData = currentUser.workData;
-
-    let fieldsToShow = [];
-    if (currentUser.role === 'DEV') {
-        fieldsToShow = ['story', 'task', 'analysis', 'bugFix', 'PR', 'codeLine'];
-    } else if (currentUser.role === 'TESTER') {
-        fieldsToShow = ['case', 'test', 'bugFound'];
-    }
-
-    console.log('要显示的字段:', fieldsToShow);
-
-    complimentsByField = buildComplimentsByField(fieldsToShow);
-
     pages = [];
+    complimentsByField = {};
     const welcomePage = document.getElementById('welcomePage');
     if (welcomePage) {
         pages.push(welcomePage);
     }
 
-    fieldsToShow.forEach((field, index) => {
-        console.log(`处理字段 ${field}, 索引 ${index}`);
-        
-        const fieldConfig = fieldMap[field];
-        let value = workData[field] || 0;
-        let unit = '';
+    if (currentUser.role === 'SUPPORT') {
+        const supportFlows = data?.supportFlows || [];
+        const chosenFlow = pickRandomItem(supportFlows) || [];
+        const supportMessages = chosenFlow.slice(0, 4);
+        const supportPoses = ['idel.png', 'diving.png', 'struggle.png', 'happy.png'];
 
-        let displayValue = value;
-        if (value >= 10000) {
-            displayValue = (value / 10000).toFixed(1);
-            unit = '万';
+        console.log('Support流程页数:', supportMessages.length);
+
+        supportMessages.forEach((message, index) => {
+            const pageDiv = document.createElement('div');
+            pageDiv.className = 'page';
+            const poseId = supportPoses[index % supportPoses.length];
+
+            pageDiv.innerHTML = `
+                <div class="dolphin-wrapper dolphin-float">
+                    <img src="${poseId}" class="dolphin-img" alt="Dolphin" loading="lazy" style="background: linear-gradient(45deg, #e3f2fd, #bbdefb); border-radius: 50%;">
+                </div>
+                <div class="content-card">
+                    <div class="data-desc">${message}</div>
+                </div>
+                <div class="page-indicator">${index + 1}/${supportMessages.length + 1}</div>
+            `;
+
+            dataContainer.appendChild(pageDiv);
+            pages.push(pageDiv);
+        });
+    } else {
+        const fieldMap = data.fieldMap[currentUser.role];
+        const workData = currentUser.workData;
+
+        let fieldsToShow = [];
+        if (currentUser.role === 'DEV') {
+            fieldsToShow = ['story', 'task', 'analysis', 'bugFix', 'PR', 'codeLine'];
+        } else if (currentUser.role === 'TESTER') {
+            fieldsToShow = ['case', 'test', 'bugFound'];
         }
 
-        const valueMarkup = buildValueMarkup(displayValue, unit);
+        console.log('要显示的字段:', fieldsToShow);
 
-        // 根据字段选择不同的海豚图片
-        let poseId = 'idel.png'; // 默认图片
-        if (field === 'bugFix' || field === 'bugFound') {
-            poseId = 'struggle.png'; // 修复bug时的困难表情
-        } else if (field === 'task' || field === 'test' || field === 'codeLine') {
-            poseId = 'diving.png'; // 工作中的专注表情
-        } else if (field === 'PR') {
-            poseId = 'happy.png'; // 完成工作的开心表情
-        } else if (field === 'story' || field === 'case') {
-            poseId = 'idel.png'; // 开始工作的平静表情
-        } else if (field === 'analysis') {
-            poseId = 'diving.png'; // 分析问题的专注表情
-        }
+        complimentsByField = buildComplimentsByField(fieldsToShow);
 
-        const pageDiv = document.createElement('div');
-        pageDiv.className = 'page';
-        const compliment = complimentsByField[field];
-        const complimentHtml = compliment ? `<div class="data-compliment">${compliment}</div>` : '';
-        
-        pageDiv.innerHTML = `
-            <div class="dolphin-wrapper dolphin-float">
-                <img src="${poseId}" class="dolphin-img" alt="Dolphin" loading="lazy" style="background: linear-gradient(45deg, #e3f2fd, #bbdefb); border-radius: 50%;">
-            </div>
-            <div class="content-card">
-                <div class="data-desc">${fieldConfig.desc.replace('{value}', valueMarkup)}</div>
-                ${complimentHtml}
-            </div>
-            <div class="page-indicator">${index + 1}/${fieldsToShow.length + 1}</div>
-        `;
-        
-        dataContainer.appendChild(pageDiv);
-        pages.push(pageDiv);
-        
-        console.log(`页面 ${index} 创建完成`);
-    });
+        fieldsToShow.forEach((field, index) => {
+            console.log(`处理字段 ${field}, 索引 ${index}`);
+            
+            const fieldConfig = fieldMap[field];
+            let value = workData[field] || 0;
+            let unit = '';
+
+            let displayValue = value;
+            if (value >= 10000) {
+                displayValue = (value / 10000).toFixed(1);
+                unit = '万';
+            }
+
+            const valueMarkup = buildValueMarkup(displayValue, unit);
+
+            // 根据字段选择不同的海豚图片
+            let poseId = 'idel.png'; // 默认图片
+            if (field === 'bugFix' || field === 'bugFound') {
+                poseId = 'struggle.png'; // 修复bug时的困难表情
+            } else if (field === 'task' || field === 'test' || field === 'codeLine') {
+                poseId = 'diving.png'; // 工作中的专注表情
+            } else if (field === 'PR') {
+                poseId = 'happy.png'; // 完成工作的开心表情
+            } else if (field === 'story' || field === 'case') {
+                poseId = 'idel.png'; // 开始工作的平静表情
+            } else if (field === 'analysis') {
+                poseId = 'diving.png'; // 分析问题的专注表情
+            }
+
+            const pageDiv = document.createElement('div');
+            pageDiv.className = 'page';
+            const compliment = complimentsByField[field];
+            const complimentHtml = compliment ? `<div class="data-compliment">${compliment}</div>` : '';
+            
+            pageDiv.innerHTML = `
+                <div class="dolphin-wrapper dolphin-float">
+                    <img src="${poseId}" class="dolphin-img" alt="Dolphin" loading="lazy" style="background: linear-gradient(45deg, #e3f2fd, #bbdefb); border-radius: 50%;">
+                </div>
+                <div class="content-card">
+                    <div class="data-desc">${fieldConfig.desc.replace('{value}', valueMarkup)}</div>
+                    ${complimentHtml}
+                </div>
+                <div class="page-indicator">${index + 1}/${fieldsToShow.length + 1}</div>
+            `;
+            
+            dataContainer.appendChild(pageDiv);
+            pages.push(pageDiv);
+            
+            console.log(`页面 ${index} 创建完成`);
+        });
+    }
 
     const blessPage = document.getElementById('blessPage');
     if (blessPage) {
