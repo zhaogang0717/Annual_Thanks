@@ -27,7 +27,6 @@ const complimentCategoryMap = {
         case: 'case',
         test: 'test',
         bugFound: 'bug',
-        release: 'release'
     }
 };
 
@@ -193,7 +192,7 @@ function initPages() {
     if (currentUser.role === 'DEV') {
         fieldsToShow = ['story', 'task', 'analysis', 'bugFix', 'PR', 'codeLine'];
     } else if (currentUser.role === 'TESTER') {
-        fieldsToShow = ['case', 'test', 'bugFound', 'release'];
+        fieldsToShow = ['case', 'test', 'bugFound'];
     }
 
     console.log('要显示的字段:', fieldsToShow);
@@ -223,7 +222,7 @@ function initPages() {
             poseId = 'struggle.png'; // 修复bug时的困难表情
         } else if (field === 'task' || field === 'test' || field === 'codeLine') {
             poseId = 'diving.png'; // 工作中的专注表情
-        } else if (field === 'PR' || field === 'release') {
+        } else if (field === 'PR') {
             poseId = 'happy.png'; // 完成工作的开心表情
         } else if (field === 'story' || field === 'case') {
             poseId = 'idel.png'; // 开始工作的平静表情

@@ -11,34 +11,492 @@
         "TESTER": {
             "case": { "label": "新增用例", "desc": "设计了{value}个的测试用例" },
             "test": { "label": "执行测试", "desc": "执行了{value}次测试用例" },
-            "bugFound": { "label": "产品缺陷", "desc": "发现了{value}个产品缺陷" },
-            "release": { "label": "版本发布", "desc": "全力保障了{value}次版本上线" }
+            "bugFound": { "label": "产品缺陷", "desc": "发现了{value}个产品缺陷" }
         }
     },
     "users": [
         {
-            "name": "leon",
-            "password": "leon123",
+            "name": "Hongyu",
+            "password": "hongyu2824",
             "role": "DEV",
             "workData": {
-                "story": 23,
-                "task": 44,
-                "analysis": 191,
-                "bugFix": 35,
-                "PR": 112,
-                "codeLine": 69082,
-                "release": 49
+                "story": 2,
+                "task": 45,
+                "bugFix": 62,
+                "analysis": 662,
+                "PR": 199,
+                "codeLine": "8.3万"
+            }
+        },
+        {
+            "name": "Felix",
+            "password": "felix1409",
+            "role": "DEV",
+            "workData": {
+                "story": 10,
+                "task": 36,
+                "bugFix": 120,
+                "analysis": 618,
+                "PR": 231,
+                "codeLine": "2.5万"
+            }
+        },
+        {
+            "name": "Wendy",
+            "password": "wendy5506",
+            "role": "DEV",
+            "workData": {
+                "story": 52,
+                "task": 49,
+                "bugFix": 111,
+                "analysis": 243,
+                "PR": 286,
+                "codeLine": "3.7万"
+            }
+        },
+        {
+            "name": "Louis",
+            "password": "louis5012",
+            "role": "DEV",
+            "workData": {
+                "story": 27,
+                "task": 70,
+                "bugFix": 142,
+                "analysis": 372,
+                "PR": 358,
+                "codeLine": "4.2万"
+            }
+        },
+        {
+            "name": "Harry",
+            "password": "harry4657",
+            "role": "DEV",
+            "workData": {
+                "story": 27,
+                "task": 59,
+                "bugFix": 58,
+                "analysis": 179,
+                "PR": 257,
+                "codeLine": "1.9万"
+            }
+        },
+        {
+            "name": "Xiaoming",
+            "password": "xiaoming3286",
+            "role": "DEV",
+            "workData": {
+                "story": 18,
+                "task": 85,
+                "bugFix": 169,
+                "analysis": 1087,
+                "PR": 426,
+                "codeLine": "5.8万"
+            }
+        },
+        {
+            "name": "Neo",
+            "password": "neo2679",
+            "role": "DEV",
+            "workData": {
+                "story": 9,
+                "task": 23,
+                "bugFix": 87,
+                "analysis": 260,
+                "PR": 159,
+                "codeLine": "1.9万"
+            }
+        },
+        {
+            "name": "Paxon",
+            "password": "paxon9935",
+            "role": "DEV",
+            "workData": {
+                "story": 40,
+                "task": 29,
+                "bugFix": 39,
+                "analysis": 239,
+                "PR": 218,
+                "codeLine": "1.8万"
+            }
+        },
+        {
+            "name": "Henry",
+            "password": "henry2424",
+            "role": "DEV",
+            "workData": {
+                "story": 4,
+                "task": 42,
+                "bugFix": 75,
+                "analysis": 361,
+                "PR": 175,
+                "codeLine": "1.4万"
+            }
+        },
+        {
+            "name": "Shuang",
+            "password": "shuang7912",
+            "role": "DEV",
+            "workData": {
+                "story": 2,
+                "task": 43,
+                "bugFix": 19,
+                "analysis": 1713,
+                "PR": 110,
+                "codeLine": "3.3万"
+            }
+        },
+        {
+            "name": "Gavin",
+            "password": "gavin1520",
+            "role": "DEV",
+            "workData": {
+                "story": 7,
+                "task": 58,
+                "bugFix": 68,
+                "analysis": 231,
+                "PR": 247,
+                "codeLine": "10.9万"
+            }
+        },
+        {
+            "name": "Haoqin",
+            "password": "haoqin1488",
+            "role": "DEV",
+            "workData": {
+                "story": 5,
+                "task": 37,
+                "bugFix": 122,
+                "analysis": 420,
+                "PR": 255,
+                "codeLine": "5.9万"
+            }
+        },
+        {
+            "name": "Lizzy",
+            "password": "lizzy2535",
+            "role": "DEV",
+            "workData": {
+                "story": 15,
+                "task": 37,
+                "bugFix": 99,
+                "analysis": 341,
+                "PR": 186,
+                "codeLine": "1.2万"
+            }
+        },
+        {
+            "name": "Bing",
+            "password": "bing4582",
+            "role": "DEV",
+            "workData": {
+                "story": 29,
+                "task": 51,
+                "bugFix": 82,
+                "analysis": 887,
+                "PR": 247,
+                "codeLine": "2.9万"
+            }
+        },
+        {
+            "name": "Jack",
+            "password": "jack4811",
+            "role": "DEV",
+            "workData": {
+                "story": 11,
+                "task": 27,
+                "bugFix": 49,
+                "analysis": 187,
+                "PR": 131,
+                "codeLine": "1.6万"
+            }
+        },
+        {
+            "name": "Gaowei",
+            "password": "gaowei9279",
+            "role": "DEV",
+            "workData": {
+                "story": 3,
+                "task": 58,
+                "bugFix": 49,
+                "analysis": 723,
+                "PR": 80,
+                "codeLine": "1.8万"
+            }
+        },
+        {
+            "name": "Alex",
+            "password": "alex1434",
+            "role": "DEV",
+            "workData": {
+                "story": 12,
+                "task": 46,
+                "bugFix": 33,
+                "analysis": 184,
+                "PR": 149,
+                "codeLine": "5.6万"
+            }
+        },
+        {
+            "name": "Lifeng",
+            "password": "lifeng4257",
+            "role": "DEV",
+            "workData": {
+                "story": 9,
+                "task": 21,
+                "bugFix": 67,
+                "analysis": 350,
+                "PR": 128,
+                "codeLine": "1.4万"
+            }
+        },
+        {
+            "name": "Magis",
+            "password": "magis9928",
+            "role": "DEV",
+            "workData": {
+                "story": 6,
+                "task": 25,
+                "bugFix": 44,
+                "analysis": 223,
+                "PR": 155,
+                "codeLine": "2.1万"
+            }
+        },
+        {
+            "name": "Patrick",
+            "password": "patrick7873",
+            "role": "DEV",
+            "workData": {
+                "story": 5,
+                "task": 53,
+                "bugFix": 47,
+                "analysis": 198,
+                "PR": 195,
+                "codeLine": "6.4万"
+            }
+        },
+        {
+            "name": "Yafu",
+            "password": "yafu4611",
+            "role": "DEV",
+            "workData": {
+                "story": 2,
+                "task": 25,
+                "bugFix": 40,
+                "analysis": 699,
+                "PR": 133,
+                "codeLine": "3.1万"
+            }
+        },
+        {
+            "name": "Menghua",
+            "password": "menghua8359",
+            "role": "DEV",
+            "workData": {
+                "story": 2,
+                "task": 61,
+                "bugFix": 38,
+                "analysis": 179,
+                "PR": 229,
+                "codeLine": "33.5万"
+            }
+        },
+        {
+            "name": "Donald",
+            "password": "donald5557",
+            "role": "DEV",
+            "workData": {
+                "story": 1,
+                "task": 33,
+                "bugFix": 21,
+                "analysis": 89,
+                "PR": 87,
+                "codeLine": "3.4万"
+            }
+        },
+        {
+            "name": "Bo",
+            "password": "bo1106",
+            "role": "DEV",
+            "workData": {
+                "story": 3,
+                "task": 8,
+                "bugFix": 38,
+                "analysis": 126,
+                "PR": 75,
+                "codeLine": "0.7万"
+            }
+        },
+        {
+            "name": "Yanshun",
+            "password": "yanshun3615",
+            "role": "DEV",
+            "workData": {
+                "story": 1,
+                "task": 40,
+                "bugFix": 27,
+                "analysis": 398,
+                "PR": 193,
+                "codeLine": "89.4万"
+            }
+        },
+        {
+            "name": "Yuhou",
+            "password": "yuhou7924",
+            "role": "DEV",
+            "workData": {
+                "story": 1,
+                "task": 9,
+                "bugFix": 23,
+                "analysis": 1098,
+                "PR": 69,
+                "codeLine": "16.6万"
+            }
+        },
+        {
+            "name": "Shawn",
+            "password": "shawn6574",
+            "role": "DEV",
+            "workData": {
+                "story": 3,
+                "task": 103,
+                "bugFix": 73,
+                "analysis": 57,
+                "PR": 38,
+                "codeLine": "0.4万"
+            }
+        },
+        {
+            "name": "Kyrie",
+            "password": "kyrie5552",
+            "role": "DEV",
+            "workData": {
+                "story": 1,
+                "task": 47,
+                "bugFix": 20,
+                "analysis": 591,
+                "PR": 164,
+                "codeLine": "1.3万"
+            }
+        },
+        {
+            "name": "Zoe",
+            "password": "zoe3547",
+            "role": "TESTER",
+            "workData": {
+                "case": 120,
+                "test": 1359,
+                "bugFound": 133
+            }
+        },
+        {
+            "name": "Bella",
+            "password": "bella4527",
+            "role": "TESTER",
+            "workData": {
+                "case": 8,
+                "test": 1256,
+                "bugFound": 164
+            }
+        },
+        {
+            "name": "Rico",
+            "password": "rico6514",
+            "role": "TESTER",
+            "workData": {
+                "case": 1,
+                "test": 254,
+                "bugFound": 281
+            }
+        },
+        {
+            "name": "Ziwei",
+            "password": "ziwei2674",
+            "role": "TESTER",
+            "workData": {
+                "case": 6,
+                "test": 1317,
+                "bugFound": 199
+            }
+        },
+        {
+            "name": "Penny",
+            "password": "penny2519",
+            "role": "TESTER",
+            "workData": {
+                "case": 12,
+                "test": 1628,
+                "bugFound": 154
+            }
+        },
+        {
+            "name": "Xin",
+            "password": "xin7224",
+            "role": "TESTER",
+            "workData": {
+                "case": 61,
+                "test": 1162,
+                "bugFound": 156
+            }
+        },
+        {
+            "name": "Arthur",
+            "password": "arthur2584",
+            "role": "TESTER",
+            "workData": {
+                "case": 33,
+                "test": 199,
+                "bugFound": 429
             }
         },
         {
             "name": "Tyrik",
-            "password": "tyrik111",
+            "password": "tyrik6881",
             "role": "TESTER",
             "workData": {
-                "case": 18,
-                "test": 4000,
-                "bugFound": 219,
-                "release": 49
+                "case": 41,
+                "test": 1302,
+                "bugFound": 137
+            }
+        },
+        {
+            "name": "Xiang",
+            "password": "xiang6635",
+            "role": "TESTER",
+            "workData": {
+                "case": 11,
+                "test": 10,
+                "bugFound": 342
+            }
+        },
+        {
+            "name": "Jinlong",
+            "password": "jinlong5333",
+            "role": "TESTER",
+            "workData": {
+                "case": 41,
+                "test": 76,
+                "bugFound": 573
+            }
+        },
+        {
+            "name": "Nancy",
+            "password": "nancy1711",
+            "role": "TESTER",
+            "workData": {
+                "case": 34,
+                "test": 1425,
+                "bugFound": 270
+            }
+        },
+        {
+            "name": "Ruonan",
+            "password": "ruonan8527",
+            "role": "TESTER",
+            "workData": {
+                "case": 114,
+                "test": 1627,
+                "bugFound": 201
             }
         }
     ],
