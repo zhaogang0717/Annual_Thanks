@@ -594,7 +594,9 @@ input:focus {
     }
 
     #loginPage.keyboard-open .dolphin-wrapper {
-        display: none;
+        width: clamp(110px, 22vh, 180px);
+        height: clamp(110px, 22vh, 180px);
+        margin-bottom: 12px;
     }
 }
 

@@ -404,6 +404,21 @@ function updateKeyboardStateFromViewport() {
     }
 }
 
+function scrollInputIntoView(target) {
+    if (!target || typeof target.getBoundingClientRect !== 'function') {
+        return;
+    }
+    const rect = target.getBoundingClientRect();
+    const viewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+    const safePadding = 16;
+
+    if (rect.bottom > viewportHeight - safePadding || rect.top < safePadding) {
+        if (typeof target.scrollIntoView === 'function') {
+            target.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        }
+    }
+}
+
 function setupKeyboardAvoidance() {
     const loginPage = document.getElementById('loginPage');
     if (!loginPage) {
@@ -418,9 +433,13 @@ function setupKeyboardAvoidance() {
     inputs.forEach(input => {
         input.addEventListener('focus', (event) => {
             setLoginKeyboardState(true);
-            if (typeof event.target.scrollIntoView === 'function') {
-                event.target.scrollIntoView({ block: 'center', behavior: 'smooth' });
-            }
+            const target = event.target;
+            window.setTimeout(() => {
+                if (document.activeElement !== target) {
+                    return;
+                }
+                scrollInputIntoView(target);
+            }, 80);
         });
 
         input.addEventListener('blur', () => {
