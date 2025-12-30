@@ -6,7 +6,7 @@
             "analysis": { "label": "分析缺陷票", "desc": "累计分析了{value}个缺陷票" },
             "bugFix": { "label": "修复缺陷", "desc": "并修复了{value}个缺陷问题" },
             "PR": { "label": "高质量代码", "desc": "提测了{value}份代码" },
-            "codeLine": { "label": "代码行数", "desc": "为pu2607累计新增了{value}行高质量代码" }
+            "codeLine": { "label": "代码行数", "desc": "为pu2607累计增删了{value}行高质量代码" }
         },
         "TESTER": {
             "case": { "label": "新增用例", "desc": "设计了{value}个的测试用例" },
@@ -15,6 +15,19 @@
         }
     },
     "users": [
+        {
+            "name": "leon",
+            "password": "leon123",
+            "role": "DEV",
+            "workData": {
+                "story": 2,
+                "task": 45,
+                "bugFix": 62,
+                "analysis": 662,
+                "PR": 199,
+                "codeLine": "8.3万"
+            }
+        },
         {
             "name": "Hongyu",
             "password": "hongyu2824",
